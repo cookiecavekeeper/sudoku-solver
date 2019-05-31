@@ -1,4 +1,9 @@
+use std::io::Write;
+use std::{io, thread, time};
+
 type Sudoku = [[u8; 9]; 9];
+
+static SHOW_PROGRESS: bool = false;
 
 fn main() {
     let mut sudoku = create_sudoku();
@@ -24,6 +29,10 @@ fn solve_step(x: usize, y: usize, mut sudoku: &mut Sudoku) -> bool {
     for i in 1u8..=9 {
         if is_valid(x, y, i, &sudoku) {
             sudoku[y][x] = i;
+            if SHOW_PROGRESS {
+                thread::sleep(time::Duration::from_millis(100));
+                print_sudoku(&sudoku);
+            }
             if solve_step(next_x, next_y, &mut sudoku) {
                 return true;
             }
@@ -96,6 +105,9 @@ fn create_sudoku() -> Sudoku {
 }
 
 fn print_sudoku(sudoku: &Sudoku) {
+    if SHOW_PROGRESS {
+        erase();
+    }
     for (i, row) in sudoku.iter().enumerate() {
         for (ii, v) in row.iter().enumerate() {
             if *v == 0 {
@@ -116,4 +128,9 @@ fn print_sudoku(sudoku: &Sudoku) {
         }
     }
     println!();
+}
+
+fn erase() {
+    print!("\x1Bc");
+    io::stdout().flush().unwrap();
 }
